@@ -1,3 +1,1 @@
 # CampusConnect_Backend
-
-tr

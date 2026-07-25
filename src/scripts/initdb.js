@@ -6,7 +6,7 @@ const initDb = async () => {
 
     // 1. USER (already created)
     await pool.query(`
-            CREATE TABLE IF NOT EXISTS "USER" (
+            CREATE TABLE IF NOT EXISTS "users" (
                   -- Primary Key
                   id SERIAL PRIMARY KEY,
 

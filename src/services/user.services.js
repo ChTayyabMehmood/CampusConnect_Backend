@@ -7,6 +7,10 @@ const {
   isStrongPassword,
   isFirstName,
   isLastName,
+  isSkills,
+  isMajor,
+  isYear,
+  Iscollege,
 } = require("../utils/validation");
 
 class UserService {
@@ -75,45 +79,99 @@ class UserService {
   }
 
   static async login({ email, password }) {
-    try {
-      if (!isEmail(email)) {
-        const error = Error("invalid email format");
-        error.statusCode = 400;
-        throw error;
-      }
-
-      // find email & password from db
-      const user = await UserModel.findByEmail({ email });
-      if (!user) {
-        const error = Error("User not found");
-        error.statusCode = 404;
-        throw error;
-      }
-
-      // compare password;
-      const isLogin = await bcrypt.compare(password, user.password);
-
-      if (!isLogin) {
-        const error = Error("invalid credentials");
-        error.statusCode = 401;
-        throw error;
-      }
-
-      // generate token
-      const token = await jwt.sign({ email: email }, "shhhhh", {
-        expiresIn: "1h",
-      });
-
-      return {
-        success: true,
-        message: "User login successfully",
-        data: { email: user.email, first_name: user.first_name },
-        statusCode: 200,
-        token,
-      };
-    } catch (error) {
-      next(error);
+    if (!isEmail(email)) {
+      const error = Error("invalid email format");
+      error.statusCode = 400;
+      throw error;
     }
+
+    // find email & password from db
+    const user = await UserModel.findByEmail({ email });
+    if (!user) {
+      const error = Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // compare password;
+    const isLogin = await bcrypt.compare(password, user.password);
+
+    if (!isLogin) {
+      const error = Error("invalid credentials");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    // generate token
+    const token = await jwt.sign({ email: email }, "shhhhh", {
+      expiresIn: "1h",
+    });
+
+    return {
+      success: true,
+      message: "User login successfully",
+      data: { email: user.email, first_name: user.first_name },
+      statusCode: 200,
+      token,
+    };
+  }
+
+  // onboarding
+  static async onboarding({
+    college,
+    graduation_year,
+    major,
+    skills,
+    user_id,
+  }) {
+    // validation
+    if (!Iscollege(college)) {
+      const error = Error("invalid college name");
+      error.statusCode = 400;
+      throw error;
+    }
+    if (!isYear(graduation_year)) {
+      const error = Error("invalid graduation year");
+      error.statusCode = 400;
+      throw error;
+    }
+    if (!isMajor(major)) {
+      const error = Error("invalid major name");
+      error.statusCode = 400;
+      throw error;
+    }
+    if (!isSkills(skills)) {
+      const error = Error("invalid skills");
+      error.statusCode = 400;
+      throw error;
+    }
+    // Business Logic
+
+    const studentProfile = await UserModel.createStudentProfile({
+      college,
+      graduation_year,
+      major,
+      skills,
+      user_id,
+    });
+
+    return {
+      success: true,
+      message: "student profile created successfully",
+      data: studentProfile,
+      statusCode: 201,
+    };
+  }
+
+  //test route for all users
+  static async allUser() {
+    const users = await UserModel.allUser();
+    return {
+      success: true,
+      message: "All users retrieved successfully",
+      data: users,
+      statusCode: 200,
+    };
   }
 }
 

@@ -29,7 +29,7 @@ class UserController {
       next(error);
     }
   }
-
+  //login
   static async login(req, res, next) {
     try {
       if (!req.body) {
@@ -39,6 +39,8 @@ class UserController {
       }
 
       const { email, password } = req.body;
+      console.log("from controller: " + email, password);
+
       const result = await UserService.login({ email, password });
 
       res.cookie("token", result.token);
@@ -47,6 +49,43 @@ class UserController {
         success: result.success,
         message: result.message,
         data: result.data || null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // onboarding (profile stepup : Universitydetails + skills)
+  static async onboarding(req, res, next) {
+    try {
+      const logInUser = req.user;
+      const { college, graduation_year, major, skills } = req.body;
+
+      const onboarding = await UserService.onboarding({
+        college,
+        graduation_year,
+        major,
+        skills,
+        user_id: logInUser.id,
+      });
+      res.status(onboarding.statusCode).json({
+        success: onboarding.success,
+        message: onboarding.message,
+        data: onboarding.data || null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // test route for all users
+  static async allUser(req, res, next) {
+    try {
+      const users = await UserService.allUser();
+      res.status(users.statusCode).json({
+        success: users.success,
+        message: users.message,
+        data: users.data || null,
       });
     } catch (error) {
       next(error);

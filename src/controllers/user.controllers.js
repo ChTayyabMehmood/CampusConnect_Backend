@@ -7,19 +7,23 @@ class UserController {
   static async signup(req, res, next) {
     try {
       if (!req.body) {
-        return res.status(400).json({ success: false, message: "Request body is missing" });
+        return res
+          .status(400)
+          .json({ success: false, message: "Request body is missing" });
       }
+
       const { email, password, first_name, last_name } = req.body;
-      const user = await UserService.register({
+      const result = await UserService.register({
         email,
         password,
         first_name,
         last_name,
       });
-      res.status(201).json({
-        success: true,
-        message: "User is register Sucessfully",
-        user,
+
+      res.status(result.statusCode).json({
+        success: result.success,
+        message: result.message,
+        data: result.data || null,
       });
     } catch (error) {
       next(error);

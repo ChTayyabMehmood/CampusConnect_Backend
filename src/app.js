@@ -2,10 +2,11 @@ const express = require("express");
 const pool = require("./config/database");
 const app = express();
 const UserRoutes = require("./routes/user.routes");
+const errorHandler = require("./middleware/errorHandler");
 
 app.use(express.json());
-
 app.use("/", UserRoutes);
+app.use(errorHandler);
 
 const startServer = async () => {
   try {

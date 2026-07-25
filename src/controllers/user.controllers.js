@@ -29,6 +29,29 @@ class UserController {
       next(error);
     }
   }
+
+  static async login(req, res, next) {
+    try {
+      if (!req.body) {
+        const error = Error("empty response");
+        error.statusCode = 400;
+        throw error;
+      }
+
+      const { email, password } = req.body;
+      const result = await UserService.login({ email, password });
+
+      res.cookie("token", result.token);
+
+      res.status(result.statusCode).json({
+        success: result.success,
+        message: result.message,
+        data: result.data || null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = UserController;

@@ -16,9 +16,9 @@ class UserModel {
   }
 
   static async findByEmail({ email }) {
-    const query = `select email from users where email=$1`;
+    const query = `select * from users where email=$1`;
     const result = await pool.query(query, [email]);
-    return result.rows[0] || null;
+    return result.rows[0];
   }
 }
 

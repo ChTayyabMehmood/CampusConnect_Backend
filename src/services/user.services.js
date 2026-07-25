@@ -75,43 +75,45 @@ class UserService {
   }
 
   static async login({ email, password }) {
-    if (!isEmail(email)) {
-      const error = Error("invalid email format");
-      error.statusCode = 400;
-      throw error;
+    try {
+      if (!isEmail(email)) {
+        const error = Error("invalid email format");
+        error.statusCode = 400;
+        throw error;
+      }
+
+      // find email & password from db
+      const user = await UserModel.findByEmail({ email });
+      if (!user) {
+        const error = Error("User not found");
+        error.statusCode = 404;
+        throw error;
+      }
+
+      // compare password;
+      const isLogin = await bcrypt.compare(password, user.password);
+
+      if (!isLogin) {
+        const error = Error("invalid credentials");
+        error.statusCode = 401;
+        throw error;
+      }
+
+      // generate token
+      const token = await jwt.sign({ email: email }, "shhhhh", {
+        expiresIn: "1h",
+      });
+
+      return {
+        success: true,
+        message: "User login successfully",
+        data: { email: user.email, first_name: user.first_name },
+        statusCode: 200,
+        token,
+      };
+    } catch (error) {
+      next(error);
     }
-
-    // find email & password from db
-    const user = await UserModel.findByEmail({ email });
-    if (!user) {
-      const error = Error("User not found");
-      error.statusCode = 404;
-      throw error;
-    }
-
-    // compare password;
-    const isLogin = await bcrypt.compare(password, user.password);
-
-    if (!isLogin) {
-      const error = Error("invalid credentials");
-      error.statusCode = 401;
-      throw error;
-    }
-
-    const token = await jwt.sign({ email: email }, "shhhhh", {
-      expiresIn: "1h",
-    });
-
-    return {
-      success: true,
-      message: "User login successfully",
-      data: { email: user.email, first_name: user.first_name },
-      statusCode: 200,
-      token,
-    };
-  }
-  catch(error) {
-    next(error);
   }
 }
 

@@ -110,7 +110,7 @@ class UserService {
     return {
       success: true,
       message: "User login successfully",
-      data: { email: user.email, first_name: user.first_name },
+      data: { email: user.email, id: user.id, first_name: user.first_name },
       statusCode: 200,
       token,
     };
@@ -163,6 +163,18 @@ class UserService {
     };
   }
 
+  static async feed() {
+    // Business Logic
+    const feed = await UserModel.getFeed();
+
+    return {
+      success: true,
+      message: "feed retrieved successfully",
+      data: feed,
+      statusCode: 200,
+    };
+  }
+
   //test route for all users
   static async allUser() {
     const users = await UserModel.allUser();
@@ -170,6 +182,26 @@ class UserService {
       success: true,
       message: "All users retrieved successfully",
       data: users,
+      statusCode: 200,
+    };
+  }
+  // get opportunity detail by id
+  static async getOpportunityById(opportunityId) {
+    // Business Logic
+    const opportunity = await UserModel.getOpportunityById(opportunityId);
+
+    if (!opportunity) {
+      return {
+        success: false,
+        message: "Opportunity not found",
+        statusCode: 404,
+      };
+    }
+
+    return {
+      success: true,
+      message: "Opportunity retrieved successfully",
+      data: opportunity,
       statusCode: 200,
     };
   }

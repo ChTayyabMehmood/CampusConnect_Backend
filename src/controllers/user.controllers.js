@@ -78,6 +78,21 @@ class UserController {
     }
   }
 
+  // feed -> all list of opporunities
+  static async feed(req, res, next) {
+    try {
+      const logInUser = req.user;
+      const feed = await UserService.feed();
+      res.status(feed.statusCode).json({
+        success: feed.success,
+        message: feed.message,
+        data: feed.data || null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   // test route for all users
   static async allUser(req, res, next) {
     try {
@@ -86,6 +101,47 @@ class UserController {
         success: users.success,
         message: users.message,
         data: users.data || null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // GET OPPORTUNITY BY ID
+  static async getOpportunityById(req, res, next) {
+    try {
+      const opportunityId = req.params.id;
+      console.log("opportunityId: ", opportunityId);
+
+      const opportunity = await UserService.getOpportunityById(opportunityId);
+
+      res.status(opportunity.statusCode).json({
+        success: opportunity.success,
+        message: opportunity.message,
+        data: opportunity.data || null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // APPLY FOR OPPORTUNITY
+  static async applyOpportunity(req, res, next) {
+    try {
+      const logInUser = req.user;
+      const opportunityId = req.params.id;
+      const { message } = req.body;
+
+      const apply = await UserService.applyOpportunity({
+        user_id: logInUser.id,
+        opportunity_id: opportunityId,
+        message,
+      });
+
+      res.status(apply.statusCode).json({
+        success: apply.success,
+        message: apply.message,
+        data: apply.data || null,
       });
     } catch (error) {
       next(error);

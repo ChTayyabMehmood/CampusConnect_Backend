@@ -41,11 +41,25 @@ class UserModel {
     return result.rows[0];
   }
 
+  // feed
+  static async getFeed() {
+    const query = `select * from OPPORTUNITY order by created_at desc`;
+    const result = await pool.query(query);
+    return result.rows;
+  }
+
   //test routes for all usr
   static async allUser() {
     const query = `select email, first_name, last_name from users`;
     const result = await pool.query(query);
     return result.rows;
+  }
+
+  // get opportunity by id
+  static async getOpportunityById(id) {
+    const query = `select * from OPPORTUNITY where id=$1`;
+    const result = await pool.query(query, [id]);
+    return result.rows[0];
   }
 }
 

@@ -61,6 +61,34 @@ class UserModel {
     const result = await pool.query(query, [id]);
     return result.rows[0];
   }
+
+  // check exiting application for a user
+  static async checkExistingApplication(opportunity_id, user_id) {
+    const query = `select * from APPLYENTITY where user_id=$1 and opportunity_id=$2`;
+    const result = await pool.query(query, [user_id, opportunity_id]);
+    return result.rows[0];
+  }
+
+  // apply opportunity
+  static async applyOpportunity({ user_id, opportunity_id, message }) {
+    const query = `insert into APPLYENTITY(user_id, opportunity_id, message) Values($1,$2,$3) Returning *`;
+    const result = await pool.query(query, [user_id, opportunity_id, message]);
+    return result.rows[0];
+  }
+
+  // check existing saved opportunity for a user
+  static async checkExistingSave(opportunity_id, user_id) {
+    const query = `select * from SAVED where user_id=$1 and opportunity_id=$2`;
+    const result = await pool.query(query, [user_id, opportunity_id]);
+    return result.rows[0];
+  }
+
+  // save opportunity
+  static async saveOpportunity({ user_id, opportunity_id }) {
+    const query = `insert into SAVED(user_id, opportunity_id) Values($1,$2) Returning *`;
+    const result = await pool.query(query, [user_id, opportunity_id]);
+    return result.rows[0];
+  }
 }
 
 module.exports = UserModel;

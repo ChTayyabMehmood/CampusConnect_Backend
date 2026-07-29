@@ -111,9 +111,9 @@ class UserController {
   static async getOpportunityById(req, res, next) {
     try {
       const opportunityId = req.params.id;
-      console.log("opportunityId: ", opportunityId);
-
-      const opportunity = await UserService.getOpportunityById(opportunityId);
+      const opportunity = await UserService.getOpportunityById({
+        opportunityId,
+      });
 
       res.status(opportunity.statusCode).json({
         success: opportunity.success,
@@ -130,10 +130,10 @@ class UserController {
     try {
       const logInUser = req.user;
       const opportunityId = req.params.id;
-      const { message } = req.body;
+      const { message } = req.body || "";
 
       const apply = await UserService.applyOpportunity({
-        user_id: logInUser.id,
+        user: logInUser,
         opportunity_id: opportunityId,
         message,
       });
@@ -146,6 +146,38 @@ class UserController {
     } catch (error) {
       next(error);
     }
+  }
+
+  // save opportunity (favorite)
+  static async SaveOpportunity(req, res, next) {
+    try {
+      const logInUser = req.user;
+      const opportunityId = req.params.id;
+
+      const save = await UserService.SaveOpportunity({
+        user: logInUser,
+        opportunity_id: opportunityId,
+      });
+
+      res.status(save.statusCode).json({
+        success: save.success,
+        message: save.message,
+        data: save.data || null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // logout
+  static async logout(req, res, next) {
+    res.cookie("token", null, {
+      expires: new Date(Date.now()),
+    });
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
   }
 }
 

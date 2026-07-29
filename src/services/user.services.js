@@ -186,7 +186,7 @@ class UserService {
     };
   }
   // get opportunity detail by id
-  static async getOpportunityById(opportunityId) {
+  static async getOpportunityById({ opportunityId }) {
     // Business Logic
     const opportunity = await UserModel.getOpportunityById(opportunityId);
 
@@ -203,6 +203,112 @@ class UserService {
       message: "Opportunity retrieved successfully",
       data: opportunity,
       statusCode: 200,
+    };
+  }
+
+  // apply opportunity by id
+  static async applyOpportunity({ user, opportunity_id, message }) {
+    // validation rules
+    if (!user.id || !opportunity_id) {
+      const error = new Error("User ID and Opportunity ID are required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Check if the opportunity exists
+    const opportunity = await UserModel.getOpportunityById(opportunity_id);
+    if (!opportunity) {
+      return {
+        success: false,
+        message: "Opportunity not found",
+        statusCode: 404,
+      };
+    }
+
+    // Check if the user has already applied for this opportunity
+    const existingApplication = await UserModel.checkExistingApplication(
+      opportunity_id,
+      user.id,
+    );
+
+    if (existingApplication) {
+      return {
+        success: false,
+        message: "You have already applied for this opportunity",
+        statusCode: 400,
+      };
+    }
+
+    // message validation
+    if (message && message.length > 500) {
+      return {
+        success: false,
+        message: "Message should not exceed 500 characters",
+        statusCode: 400,
+      };
+    }
+
+    // Business Logic
+
+    const application = await UserModel.applyOpportunity({
+      user_id: user.id,
+      opportunity_id,
+      message,
+    });
+
+    return {
+      success: true,
+      message: "Application submitted successfully",
+      data: application,
+      statusCode: 201,
+    };
+  }
+
+  // save opportunity (favorite)
+  static async SaveOpportunity({ user, opportunity_id }) {
+    // validation rules
+    if (!user.id || !opportunity_id) {
+      const error = new Error("User ID and Opportunity ID are required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Check if the opportunity exists
+    const opportunity = await UserModel.getOpportunityById(opportunity_id);
+    if (!opportunity) {
+      return {
+        success: false,
+        message: "Opportunity not found",
+        statusCode: 404,
+      };
+    }
+
+    // Check if the user has already saved this opportunity
+    const existingSave = await UserModel.checkExistingSave(
+      opportunity_id,
+      user.id,
+    );
+
+    if (existingSave) {
+      return {
+        success: false,
+        message: "You have already saved this opportunity",
+        statusCode: 400,
+      };
+    }
+
+    // Business Logic
+
+    const save = await UserModel.saveOpportunity({
+      user_id: user.id,
+      opportunity_id,
+    });
+
+    return {
+      success: true,
+      message: "Opportunity saved successfully",
+      data: save,
+      statusCode: 201,
     };
   }
 }

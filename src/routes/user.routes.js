@@ -17,6 +17,12 @@ router.post(
 
 router.post("/opportunity/:id/saved", userAuth, UserController.SaveOpportunity);
 
+// router.get(
+//   "/opportunity/saved",
+//   userAuth,
+//   UserController.getSavedOpportunities,
+// );
+
 // test routes all user
 router.get("/alluser", UserController.allUser);
 router.post("/logout", UserController.logout);
